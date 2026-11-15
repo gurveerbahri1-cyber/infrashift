@@ -1,8 +1,27 @@
-import { Link } from "wouter";
-import { ArrowRight, Zap, Target, Briefcase, ChevronRight } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "wouter";
+import { ArrowRight, Zap, Target, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 
 export default function LandingPage() {
+  const [, setLocation] = useLocation();
+  const { user, isGoogleConfigured, renderGoogleButton, signInAsGuest } = useAuth();
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!user && isGoogleConfigured && googleBtnRef.current) {
+      renderGoogleButton(googleBtnRef.current);
+    }
+  }, [user, isGoogleConfigured, renderGoogleButton]);
+
+  const handleStart = () => {
+    if (!user && !isGoogleConfigured) {
+      signInAsGuest();
+    }
+    setLocation("/dashboard");
+  };
+
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background selection:bg-primary/20">
       <header className="container mx-auto px-4 h-16 flex items-center justify-between border-b">
@@ -13,12 +32,22 @@ export default function LandingPage() {
           <span className="font-bold text-xl tracking-tight">JobBlast</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/sign-in" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Sign In
-          </Link>
-          <Link href="/sign-up" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded shadow-sm hover:bg-primary/90 transition-colors">
-            Get Started
-          </Link>
+          {user ? (
+            <Link href="/dashboard" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded shadow-sm hover:bg-primary/90 transition-colors inline-flex items-center gap-1.5">
+              Open Dashboard <ArrowRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div ref={googleBtnRef} />
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleStart}
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -39,9 +68,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <Link href="/sign-up" className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded text-lg font-medium shadow-lg hover:bg-primary/90 transition-all w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="text-lg px-8 py-6 rounded shadow-lg gap-2"
+              onClick={handleStart}
+            >
               Start Blasting <ArrowRight className="w-5 h-5" />
-            </Link>
+            </Button>
           </div>
         </div>
 
