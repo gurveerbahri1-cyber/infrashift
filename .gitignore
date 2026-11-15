@@ -60,3 +60,5 @@ Thumbs.db
 # Agents / ML
 .agents/
 .ml.ai/
+
+.vercel
