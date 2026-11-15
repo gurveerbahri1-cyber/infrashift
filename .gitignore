@@ -62,3 +62,4 @@ Thumbs.db
 .ml.ai/
 
 .vercel
+.env*
